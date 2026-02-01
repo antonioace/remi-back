@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { NotificationsService } from './notifications.service';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('notifications')
@@ -28,8 +30,14 @@ export class NotificationsController {
   }
 
   @Get()
-  findAll(@Request() req: { user: { userId: string } }) {
-    return this.notificationsService.findAllByUser(req.user.userId);
+  findAll(
+    @Request() req: { user: { userId: string } },
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.notificationsService.findAllByUser(
+      req.user.userId,
+      paginationDto,
+    );
   }
 
   @Get(':id')

@@ -4,12 +4,7 @@ import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
-import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
-
-const PASSWORD_RESET_TEMPLATE = (resetLink: string) => `
-  <p>Click here to reset your password: <a href="${resetLink}">${resetLink}</a></p>
-`;
 
 @Injectable()
 export class AuthService {
@@ -59,26 +54,23 @@ export class AuthService {
       throw new BadRequestException('Email not found');
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = new Date();
     expires.setHours(expires.getHours() + 1); // 1 hour expiration
 
-    await this.usersService.setResetToken(user.id, token, expires);
-
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`; // Adjust frontend URL
+    await this.usersService.setResetToken(user.id, code, expires);
 
     await this.emailService.sendEmail(
       user.email,
-      'Password Reset Request',
-      `Click here to reset your password: ${resetLink}`,
-      PASSWORD_RESET_TEMPLATE(resetLink),
+      'Recuperación de contraseña',
+      `Tu código de recuperación es: ${code}`,
     );
 
     return { message: 'Password reset email sent' };
   }
 
-  async resetPassword(token: string, newPassword: string) {
-    const user = await this.usersService.findByResetToken(token);
+  async resetPassword(code: string, newPassword: string) {
+    const user = await this.usersService.findByResetToken(code);
     if (!user) {
       throw new BadRequestException('Invalid or expired token');
     }

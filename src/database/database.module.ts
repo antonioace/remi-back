@@ -8,7 +8,7 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot({
       type: 'better-sqlite3',
       database: 'database/database.sqlite',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      autoLoadEntities: true,
       synchronize: true,
       prepareDatabase: (db: { pragma: (command: string) => void }) => {
         db.pragma('journal_mode = WAL');

@@ -7,6 +7,9 @@ import { SeedModule } from './seed/seed.module';
 import { UsersModule } from './users/users.module';
 import { EmailModule } from './email/email.module';
 import { DatabaseModule } from './database/database.module';
+import { NotebooksModule } from './notebooks/notebooks.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -14,12 +17,15 @@ import { DatabaseModule } from './database/database.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
     DatabaseModule,
     UsersModule,
     AuthModule,
     NotificationsModule,
     SeedModule,
     EmailModule,
+    NotebooksModule,
   ],
 })
 export class AppModule {}

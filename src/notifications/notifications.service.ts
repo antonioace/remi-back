@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification } from './entities/notification.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class NotificationsService {
@@ -21,8 +23,29 @@ export class NotificationsService {
     return this.notificationsRepository.save(notification);
   }
 
-  async findAllByUser(userId: string) {
-    return this.notificationsRepository.find({ where: { userId } });
+  async findAllByUser(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginationResult<Notification>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.notificationsRepository.findAndCount({
+      where: { userId },
+      take: limit,
+      skip,
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+        limit,
+      },
+    };
   }
 
   async findOne(userId: string, id: string) {

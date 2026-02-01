@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Notification } from '../../notifications/entities/notification.entity';
+import { Notebook } from '../../notebooks/entities/notebook.entity';
 
 @Entity('users')
 export class User {
@@ -38,6 +39,9 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
+
+  @OneToMany(() => Notebook, (notebook) => notebook.user)
+  notebooks: Notebook[];
 
   @CreateDateColumn()
   createdAt: Date;
