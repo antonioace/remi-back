@@ -18,4 +18,5 @@ services:
 volumes:
   data:
 networks:
-  - web
+  web:
+    external: true
