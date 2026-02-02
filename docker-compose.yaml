@@ -8,6 +8,8 @@ services:
     volumes:
       - ./data:/usr/src/app/data
     restart: always
+    networks:
+      - web
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.remido-back.rule=Host(`remidobackend.hecainnova.com`)'
