@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data:/usr/src/app/data
+      - ./data:/usr/src/app/database
     restart: always
     networks:
       - web
