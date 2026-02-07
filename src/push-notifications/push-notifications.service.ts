@@ -18,7 +18,7 @@ export class PushNotificationsService implements OnModuleInit {
       return;
     }
     webPush.setVapidDetails(
-      'mailto:tu-email@dominio.com',
+      'mailto:antonioacevedocastellanos@gmail.com',
       process.env.VAPID_PUBLIC_KEY,
       process.env.VAPID_PRIVATE_KEY,
     );
