@@ -25,6 +25,7 @@ export class NotebookEvent {
   @Column()
   notebookId: string;
 
+
   @Column({
     type: 'simple-enum',
     enum: NotebookEventType,

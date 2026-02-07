@@ -8,16 +8,21 @@ import {
   NotebookEventType,
 } from './entities/notebook-event.entity';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Notebook } from './entities/notebook.entity';
+import { PushNotificationsService } from '../push-notifications/push-notifications.service';
 
 @Injectable()
 export class NotebooksTaskService {
   private readonly logger = new Logger(NotebooksTaskService.name);
 
   constructor(
+    @InjectRepository(Notebook)
+    private readonly notebookRepository: Repository<Notebook>,
     @InjectRepository(NotebookEvent)
     private readonly eventsRepository: Repository<NotebookEvent>,
     private readonly notificationsService: NotificationsService,
-  ) {}
+    private readonly pushNotificationsService: PushNotificationsService,
+  ) { }
 
   // Run every 20 seconds
   @Cron('*/20 * * * * *')
@@ -32,15 +37,22 @@ export class NotebooksTaskService {
     for (const event of pendingEvents) {
       try {
         this.logger.log(`Processing event ${event.id} of type ${event.type}`);
-
-        const notebookName =
-          typeof event.payload?.name === 'string'
-            ? event.payload.name
-            : 'sin nombre';
-
+        const notebook = await this.notebookRepository.findOne({
+          where: { id: event.notebookId }
+        })
         await this.notificationsService.create(event.userId, {
-          title: `Notebook ${event.type === NotebookEventType.CREATED ? 'Creado' : 'Actualizado'}`,
-          message: `Tu notebook "${notebookName}" ha sido procesado exitosamente.`,
+          title: notebook?.name || 'Notebook Event',
+          message: notebook?.description ? `${notebook.description}` : `Your notebook event of type ${event.type} has been processed.`,
+        });
+
+        const title = notebook?.name || 'Notebook Event';
+        const body = notebook?.description
+          ? `${notebook.description}`
+          : `Your notebook event of type ${event.type} has been processed.`;
+
+        await this.pushNotificationsService.sendNotificationToUser(event.userId, {
+          title,
+          body,
         });
 
         event.status = NotebookEventStatus.EXECUTED;

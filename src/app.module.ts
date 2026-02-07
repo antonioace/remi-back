@@ -10,6 +10,7 @@ import { DatabaseModule } from './database/database.module';
 import { NotebooksModule } from './notebooks/notebooks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { PushNotificationsModule } from './push-notifications/push-notifications.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     SeedModule,
     EmailModule,
     NotebooksModule,
+    PushNotificationsModule,
   ],
 })
 export class AppModule {}
