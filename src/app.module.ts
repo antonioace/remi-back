@@ -11,6 +11,8 @@ import { NotebooksModule } from './notebooks/notebooks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PushNotificationsModule } from './push-notifications/push-notifications.module';
+import { FilesModule } from './files/files.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { PushNotificationsModule } from './push-notifications/push-notifications
     EmailModule,
     NotebooksModule,
     PushNotificationsModule,
+    FilesModule,
+    S3Module,
   ],
 })
 export class AppModule {}

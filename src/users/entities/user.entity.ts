@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Notification } from '../../notifications/entities/notification.entity';
 import { Notebook } from '../../notebooks/entities/notebook.entity';
+import { File } from '../../files/entities/file.entity';
 
 @Entity('users')
 export class User {
@@ -42,6 +43,9 @@ export class User {
 
   @OneToMany(() => Notebook, (notebook) => notebook.user)
   notebooks: Notebook[];
+
+  @OneToMany(() => File, (file) => file.user)
+  files: File[];
 
   @CreateDateColumn()
   createdAt: Date;

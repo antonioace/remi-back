@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { File } from '../../files/entities/file.entity';
 
 @Entity('notebooks')
 export class Notebook {
@@ -38,6 +40,9 @@ export class Notebook {
 
   @Column({ nullable: true })
   timezone?: string;
+
+  @OneToMany(() => File, (file) => file.notebook)
+  files: File[];
 
   @CreateDateColumn()
   createdAt: Date;
