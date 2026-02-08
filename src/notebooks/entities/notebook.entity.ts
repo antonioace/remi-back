@@ -53,4 +53,5 @@ export class Notebook {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
 }

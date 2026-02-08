@@ -109,6 +109,7 @@ export class NotebooksService {
 
   async findAll(
     paginationDto: PaginationDto,
+    userId: string
   ): Promise<PaginationResult<Notebook>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
@@ -116,6 +117,7 @@ export class NotebooksService {
     const [data, total] = await this.notebooksRepository.findAndCount({
       take: limit,
       skip,
+      where: { userId },
       order: { createdAt: 'DESC' },
     });
 

@@ -22,8 +22,10 @@ import { UpdateNotebookDto } from './dto/update-notebook.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('notebooks')
+@UseGuards(JwtAuthGuard)
+
 export class NotebooksController {
-  constructor(private readonly notebooksService: NotebooksService) {}
+  constructor(private readonly notebooksService: NotebooksService) { }
 
   @Post()
   create(@Body() createNotebookDto: CreateNotebookDto) {
@@ -31,7 +33,6 @@ export class NotebooksController {
   }
 
   @Post('create-audio')
-  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async createFromAudio(
     @UploadedFile() file: Express.Multer.File,
@@ -45,8 +46,8 @@ export class NotebooksController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.notebooksService.findAll(paginationDto);
+  findAll(@Query() paginationDto: PaginationDto, @Request() req) {
+    return this.notebooksService.findAll(paginationDto, req?.user?.userId);
   }
 
   @Get(':id')
