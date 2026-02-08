@@ -8,12 +8,16 @@ import { NotebooksListener } from './listeners/notebooks.listener';
 import { NotebooksTaskService } from './notebooks-task.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PushNotificationsModule } from '../push-notifications/push-notifications.module';
+import { AudioModule } from '../audio/audio.module';
+import { OpenaiModule } from '../openai/openai.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Notebook, NotebookEvent]),
     NotificationsModule,
     PushNotificationsModule,
+    AudioModule,
+    OpenaiModule,
   ],
   controllers: [NotebooksController],
   providers: [NotebooksService, NotebooksListener, NotebooksTaskService],

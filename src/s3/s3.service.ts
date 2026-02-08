@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -56,5 +57,50 @@ export class S3Service {
             this.logger.error('Error uploading to S3', error);
             throw error;
         }
+    }
+
+    async getSignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
+        const bucket = this.configService.get('AWS_S3_BUCKET_NAME');
+        try {
+            const command = new GetObjectCommand({
+                Bucket: bucket,
+                Key: key,
+            });
+            return await getSignedUrl(this.s3Client, command, { expiresIn });
+        } catch (error) {
+            this.logger.error('Error generating signed URL', error);
+            throw error;
+        }
+    }
+
+    extractKeyFromUrl(url: string): string | null {
+        const endpoint = this.configService.get<string>('AWS_URL');
+        const bucket = this.configService.get<string>('AWS_S3_BUCKET_NAME');
+
+        if (!endpoint || !bucket) {
+            return null;
+        }
+
+        // Constructed URL format: ${endpoint}/${bucket}/${key}
+        // Example: https://....r2.cloudflarestorage.com/mybucket/my-key.png
+        
+        // Check if URL starts with endpoint
+        if (!url.includes(endpoint)) {
+             return null;
+        }
+        
+        // Remove endpoint
+        let temp = url.replace(endpoint, '');
+        // Remove leading slash if any
+        if (temp.startsWith('/')) temp = temp.substring(1);
+        
+        // Check if starts with bucket
+        if (temp.startsWith(bucket)) {
+             temp = temp.replace(bucket, '');
+             if (temp.startsWith('/')) temp = temp.substring(1);
+             return temp; // This should be the key
+        }
+        
+        return null;
     }
 }

@@ -13,6 +13,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PushNotificationsModule } from './push-notifications/push-notifications.module';
 import { FilesModule } from './files/files.module';
 import { S3Module } from './s3/s3.module';
+import { OpenaiModule } from './openai/openai.module';
+import { AudioModule } from './audio/audio.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { S3Module } from './s3/s3.module';
     PushNotificationsModule,
     FilesModule,
     S3Module,
+    OpenaiModule,
+    AudioModule,
   ],
 })
 export class AppModule {}

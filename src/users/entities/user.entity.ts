@@ -10,6 +10,7 @@ import {
 import { Notification } from '../../notifications/entities/notification.entity';
 import { Notebook } from '../../notebooks/entities/notebook.entity';
 import { File } from '../../files/entities/file.entity';
+import { Audio } from '../../audio/entities/audio.entity';
 
 @Entity('users')
 export class User {
@@ -46,6 +47,9 @@ export class User {
 
   @OneToMany(() => File, (file) => file.user)
   files: File[];
+
+  @OneToMany(() => Audio, (audio) => audio.user)
+  audios: Audio[];
 
   @CreateDateColumn()
   createdAt: Date;

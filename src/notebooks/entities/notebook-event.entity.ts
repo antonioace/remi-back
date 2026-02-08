@@ -25,6 +25,10 @@ export class NotebookEvent {
   @Column()
   notebookId: string;
 
+  // SQLite (better-sqlite3) does not support timestamptz; use datetime instead
+  @Column({ type: 'datetime', nullable: true })
+  assignedAt?: Date;
+
 
   @Column({
     type: 'simple-enum',

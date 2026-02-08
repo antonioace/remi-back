@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { File } from '../../files/entities/file.entity';
+import { Audio } from '../../audio/entities/audio.entity';
 
 @Entity('notebooks')
 export class Notebook {
@@ -43,6 +44,9 @@ export class Notebook {
 
   @OneToMany(() => File, (file) => file.notebook)
   files: File[];
+
+  @OneToMany(() => Audio, (audio) => audio.notebook)
+  audios: Audio[];
 
   @CreateDateColumn()
   createdAt: Date;

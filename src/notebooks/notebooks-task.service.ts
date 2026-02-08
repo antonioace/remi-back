@@ -29,10 +29,20 @@ export class NotebooksTaskService {
   async handleCron() {
     this.logger.debug('Running cron job to process pending notebook events');
 
-    const pendingEvents = await this.eventsRepository.find({
-      where: { status: NotebookEventStatus.PENDING },
-      take: 10, // Process in batches
-    });
+    const now = new Date();
+    const pendingEvents = await this.eventsRepository
+      .createQueryBuilder('event')
+      .leftJoin(Notebook, 'notebook', 'notebook.id = event.notebookId')
+      .where('event.status = :status', { status: NotebookEventStatus.PENDING })
+      // Only pick events whose own assignedAt is due OR, if null, use notebook.assignedAt
+      .andWhere(
+        '((event.assignedAt IS NULL AND notebook.assignedAt IS NULL) OR COALESCE(event.assignedAt, notebook.assignedAt) <= :now)',
+        { now },
+      )
+      .addSelect('COALESCE(event.assignedAt, notebook.assignedAt, event.createdAt)', 'sortDate')
+      .orderBy('sortDate', 'ASC')
+      .take(10)
+      .getMany();
 
     for (const event of pendingEvents) {
       try {
@@ -40,6 +50,7 @@ export class NotebooksTaskService {
         const notebook = await this.notebookRepository.findOne({
           where: { id: event.notebookId }
         })
+
         await this.notificationsService.create(event.userId, {
           title: notebook?.name || 'Notebook Event',
           message: notebook?.description ? `${notebook.description}` : `Your notebook event of type ${event.type} has been processed.`,
