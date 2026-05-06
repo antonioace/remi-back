@@ -27,4 +27,12 @@ export class UpdateUserDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @IsString()
+  @IsOptional()
+  profileImage?: string;
+
+  @IsString()
+  @IsOptional()
+  username?: string;
 }

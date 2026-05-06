@@ -34,6 +34,12 @@ export class User {
   resetPasswordToken?: string;
 
   @Column({ nullable: true })
+  profileImage?: string;
+
+  @Column({ nullable: true, unique: true })
+  username?: string;
+
+  @Column({ nullable: true })
   resetPasswordExpires?: Date;
 
   @Column({ default: true })

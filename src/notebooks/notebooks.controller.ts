@@ -23,9 +23,8 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('notebooks')
 @UseGuards(JwtAuthGuard)
-
 export class NotebooksController {
-  constructor(private readonly notebooksService: NotebooksService) { }
+  constructor(private readonly notebooksService: NotebooksService) {}
 
   @Post()
   create(@Body() createNotebookDto: CreateNotebookDto) {
@@ -37,16 +36,23 @@ export class NotebooksController {
   async createFromAudio(
     @UploadedFile() file: Express.Multer.File,
     @Body('timezone') timezone: string,
-    @Request() req,
+    @Request() req: { user: { userId: string } },
   ) {
     if (!file) throw new BadRequestException('File is required');
     if (!timezone) throw new BadRequestException('Timezone is required');
 
-    return this.notebooksService.createFromAudio(file, req.user.userId, timezone);
+    return this.notebooksService.createFromAudio(
+      file,
+      req.user.userId,
+      timezone,
+    );
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto, @Request() req) {
+  findAll(
+    @Query() paginationDto: PaginationDto,
+    @Request() req: { user: { userId: string } },
+  ) {
     return this.notebooksService.findAll(paginationDto, req?.user?.userId);
   }
 

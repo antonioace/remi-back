@@ -18,6 +18,13 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
 
+interface NotebookAIResponse {
+  name: string;
+  description: string;
+  textContent: string;
+  assignedAt: string | null;
+}
+
 @Injectable()
 export class NotebooksService {
   private readonly logger = new Logger(NotebooksService.name);
@@ -28,7 +35,7 @@ export class NotebooksService {
     private readonly eventEmitter: EventEmitter2,
     private readonly audioService: AudioService,
     private readonly openaiService: OpenaiService,
-  ) { }
+  ) {}
 
   async create(createNotebookDto: CreateNotebookDto) {
     const notebook = this.notebooksRepository.create(createNotebookDto);
@@ -37,7 +44,11 @@ export class NotebooksService {
     return savedNotebook;
   }
 
-  async createFromAudio(file: Express.Multer.File, userId: string, timezone: string) {
+  async createFromAudio(
+    file: Express.Multer.File,
+    userId: string,
+    timezone: string,
+  ) {
     // 1. Upload and Transcribe
     const audio = await this.audioService.uploadAndTranscribe(file, userId);
 
@@ -62,30 +73,36 @@ export class NotebooksService {
         "assignedAt": "string (YYYY-MM-DD HH:mm) or null"
     }`;
 
-    const aiResult = await this.openaiService.generateJSON(prompt, jsonStructure, timezone);
+    const aiResult = await this.openaiService.generateJSON(
+      prompt,
+      jsonStructure,
+      timezone,
+    );
 
     if (!aiResult.success || !aiResult.response) {
       throw new Error('Failed to analyze audio');
     }
 
-    let parsedData;
+    let parsedData: NotebookAIResponse;
     try {
-      parsedData = JSON.parse(aiResult.response);
-    } catch (e) {
+      parsedData = JSON.parse(aiResult.response) as NotebookAIResponse;
+    } catch (e: any) {
       this.logger.error('Error parsing OpenAI response', e);
       // Fallback
       parsedData = {
         name: 'Audio Note',
         description: 'Created from audio',
         textContent: audio.transcription,
-        assignedAt: null
+        assignedAt: null,
       };
     }
 
     // 3. Create Notebook
     let assignedDate: Date | undefined = undefined;
     if (parsedData.assignedAt) {
-      assignedDate = dayjs.tz(parsedData.assignedAt, 'YYYY-MM-DD HH:mm', timezone).toDate();
+      assignedDate = dayjs
+        .tz(parsedData.assignedAt, 'YYYY-MM-DD HH:mm', timezone)
+        .toDate();
     }
 
     const notebook = this.notebooksRepository.create({
@@ -94,7 +111,7 @@ export class NotebooksService {
       textContent: parsedData.textContent || audio.transcription,
       assignedAt: assignedDate,
       userId: userId,
-      timezone: timezone
+      timezone: timezone,
     });
 
     const savedNotebook = await this.notebooksRepository.save(notebook);
@@ -109,7 +126,7 @@ export class NotebooksService {
 
   async findAll(
     paginationDto: PaginationDto,
-    userId: string
+    userId: string,
   ): Promise<PaginationResult<Notebook>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;

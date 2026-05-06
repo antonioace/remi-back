@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import {
   NotebookEvent,
   NotebookEventStatus,
-  NotebookEventType,
 } from './entities/notebook-event.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Notebook } from './entities/notebook.entity';
@@ -22,7 +21,7 @@ export class NotebooksTaskService {
     private readonly eventsRepository: Repository<NotebookEvent>,
     private readonly notificationsService: NotificationsService,
     private readonly pushNotificationsService: PushNotificationsService,
-  ) { }
+  ) {}
 
   // Run every 20 seconds
   @Cron('*/20 * * * * *')
@@ -39,7 +38,10 @@ export class NotebooksTaskService {
         '((event.assignedAt IS NULL AND notebook.assignedAt IS NULL) OR COALESCE(event.assignedAt, notebook.assignedAt) <= :now)',
         { now },
       )
-      .addSelect('COALESCE(event.assignedAt, notebook.assignedAt, event.createdAt)', 'sortDate')
+      .addSelect(
+        'COALESCE(event.assignedAt, notebook.assignedAt, event.createdAt)',
+        'sortDate',
+      )
       .orderBy('sortDate', 'ASC')
       .take(10)
       .getMany();
@@ -48,12 +50,14 @@ export class NotebooksTaskService {
       try {
         this.logger.log(`Processing event ${event.id} of type ${event.type}`);
         const notebook = await this.notebookRepository.findOne({
-          where: { id: event.notebookId }
-        })
+          where: { id: event.notebookId },
+        });
 
         await this.notificationsService.create(event.userId, {
           title: notebook?.name || 'Notebook Event',
-          message: notebook?.description ? `${notebook.description}` : `Your notebook event of type ${event.type} has been processed.`,
+          message: notebook?.description
+            ? `${notebook.description}`
+            : `Your notebook event of type ${event.type} has been processed.`,
         });
 
         const title = notebook?.name || 'Notebook Event';
@@ -61,10 +65,13 @@ export class NotebooksTaskService {
           ? `${notebook.description}`
           : `Your notebook event of type ${event.type} has been processed.`;
 
-        await this.pushNotificationsService.sendNotificationToUser(event.userId, {
-          title,
-          body,
-        });
+        await this.pushNotificationsService.sendNotificationToUser(
+          event.userId,
+          {
+            title,
+            body,
+          },
+        );
 
         event.status = NotebookEventStatus.EXECUTED;
         await this.eventsRepository.save(event);

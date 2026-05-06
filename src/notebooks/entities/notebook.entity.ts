@@ -11,6 +11,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { File } from '../../files/entities/file.entity';
 import { Audio } from '../../audio/entities/audio.entity';
+import { NotebookUser } from './notebook-user.entity';
 
 @Entity('notebooks')
 export class Notebook {
@@ -48,10 +49,12 @@ export class Notebook {
   @OneToMany(() => Audio, (audio) => audio.notebook)
   audios: Audio[];
 
+  @OneToMany(() => NotebookUser, (notebookUser) => notebookUser.notebook)
+  notebookUsers: NotebookUser[];
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
 }

@@ -1,12 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
+import { Resend } from 'resend';
 
 @Injectable()
 export class EmailService {
-  constructor(private readonly mailerService: MailerService) {}
+  private resend: Resend;
+
+  constructor(private readonly configService: ConfigService) {
+    const apiKey = this.configService.get<string>('RESEND_API_KEY');
+    this.resend = new Resend(apiKey);
+  }
 
   async sendEmail(to: string, subject: string, text: string, html?: string) {
-    await this.mailerService.sendMail({
+    const from =
+      this.configService.get<string>('MAIL_FROM') ||
+      'Soporte Remido <onboarding@resend.dev>';
+
+    await this.resend.emails.send({
+      from,
       to,
       subject,
       text,

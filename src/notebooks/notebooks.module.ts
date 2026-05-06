@@ -10,10 +10,11 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { PushNotificationsModule } from '../push-notifications/push-notifications.module';
 import { AudioModule } from '../audio/audio.module';
 import { OpenaiModule } from '../openai/openai.module';
+import { NotebookUser } from './entities/notebook-user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Notebook, NotebookEvent]),
+    TypeOrmModule.forFeature([Notebook, NotebookEvent, NotebookUser]),
     NotificationsModule,
     PushNotificationsModule,
     AudioModule,
