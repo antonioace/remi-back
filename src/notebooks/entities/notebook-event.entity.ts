@@ -29,7 +29,6 @@ export class NotebookEvent {
   @Column({ type: 'datetime', nullable: true })
   assignedAt?: Date;
 
-
   @Column({
     type: 'simple-enum',
     enum: NotebookEventType,

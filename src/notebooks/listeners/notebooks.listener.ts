@@ -32,6 +32,7 @@ export class NotebooksListener {
 
   @OnEvent('notebook.updated')
   async handleNotebookUpdatedEvent(notebook: Notebook) {
+    console.log('note book', notebook);
     this.logger.log(`Handling notebook.updated for ${notebook.id}`);
 
     // Always notify
@@ -50,7 +51,9 @@ export class NotebooksListener {
     const oldDate = oldAssignedAt
       ? new Date(oldAssignedAt as string).getTime()
       : undefined;
-    const newDate = notebook.assignedAt?.getTime();
+    const newDate = notebook?.assignedAt
+      ? new Date(notebook?.assignedAt).getTime()
+      : undefined;
 
     if (oldDate !== newDate) {
       this.logger.log(
